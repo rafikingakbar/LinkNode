@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>URL Shortener</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <div class="header-left">
+        <div class="logo-box">
+          <span class="logo-icon">⛓</span>
+        </div>
+        <div>
+          <h1 class="title">URL Shortener</h1>
+          <p class="subtitle">
+            Shorten your long links into easy-to-share and memorable URLs
+          </p>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <button class="pill">EN</button>
+        <button class="circle-btn" id="themeToggle">☀</button>
+      </div>
+    </header>
+
+    <section class="stats">
+      <div class="card card-green">
+        <p class="card-label">Total Links</p>
+        <p class="card-value" id="totalLinks">0</p>
+      </div>
+      <div class="card card-blue">
+        <p class="card-label">Total Clicks</p>
+        <p class="card-value" id="totalClicks">0</p>
+      </div>
+    </section>
+
+    <section class="shorten-section">
+      <form id="shortenForm" class="shorten-form">
+        <input
+          type="url"
+          id="urlInput"
+          placeholder="Enter your long URL here..."
+          required
+        />
+        <button type="submit" class="btn-primary">Shorten URL</button>
+      </form>
+      <p class="error-text" id="errorText"></p>
+    </section>
+
+    <section class="list-section">
+      <h2 class="list-title">Shortened Links</h2>
+      <div id="emptyState" class="empty-state">
+        Belum ada link yang dipendekkan. Masukkan URL di atas.
+      </div>
+      <div id="linksContainer" class="links-container"></div>
+    </section>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
