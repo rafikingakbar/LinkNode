@@ -33,7 +33,7 @@ module.exports = async (req, res) => {
 
     const shortCode = generateShortCode();
 
-    const shortUrl = `${req.headers.origin}/api/s/${shortCode}`;
+    const shortUrl = `${req.headers.origin}/s/${shortCode}`;
 
     const data = {
       originalUrl,
