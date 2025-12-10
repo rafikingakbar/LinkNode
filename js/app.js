@@ -54,27 +54,32 @@ function render() {
     card.className = "link-card";
     card.dataset.id = item.id;
 
+    // pilih teks klik satuan/jamak
+    const clicks = item.clicks || 0;
+    const clickWord =
+      clicks === 1 ? t("clickOne") : t("clickMany");
+
     card.innerHTML = `
       <div class="link-row-top">
         <div class="link-meta">
-          <p class="link-label">SHORT LINK</p>
+          <p class="link-label">${t("shortLabel")}</p>
           <a href="${item.originalUrl}" target="_blank" class="link-short" data-role="short-link">
             ${item.shortUrl}
           </a>
         </div>
         <div class="link-actions">
-          <button class="btn-text" data-role="copy">Copy</button>
-          <button class="btn-text delete" data-role="delete">Delete</button>
+          <button class="btn-text" data-role="copy">${t("copy")}</button>
+          <button class="btn-text delete" data-role="delete">${t("delete")}</button>
         </div>
       </div>
 
       <div class="link-row-bottom">
         <div>
-          <p class="link-label">ORIGINAL URL</p>
+          <p class="link-label">${t("originalLabel")}</p>
           <p class="link-original">${item.originalUrl}</p>
         </div>
         <div class="link-info">
-          <span>${item.clicks || 0} clicks</span>
+          <span>${clicks} ${clickWord}</span>
           <span>• ${item.createdAt}</span>
         </div>
       </div>
