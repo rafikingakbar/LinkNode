@@ -74,6 +74,7 @@ function render() {
         </div>
         <div class="link-actions">
           <button class="btn-text" data-role="copy">${t("copy")}</button>
+          <button class="btn-text delete" data-role="delete">${t("delete")}</button>
         </div>
       </div>
 
@@ -141,8 +142,9 @@ linksContainer.addEventListener("click", async function (e) {
   const shortCode = card.dataset.id;
   const role = target.getAttribute("data-role");
 
-  const item = links.find((x) => x.shortCode === shortCode);
-  if (!item) return;
+  const itemIndex = links.findIndex((x) => x.shortCode === shortCode);
+  if (itemIndex === -1) return;
+  const item = links[itemIndex];
 
   if (role === "copy") {
     const textToCopy = item.shortUrl;
@@ -151,6 +153,33 @@ linksContainer.addEventListener("click", async function (e) {
       alert("Short URL disalin: " + textToCopy);
     } else {
       prompt("Copy URL ini:", textToCopy);
+    }
+  }
+
+  if (role === "delete") {
+    const ok = confirm("Hapus link ini?");
+    if (!ok) return;
+
+    try {
+      const res = await fetch("/api/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shortCode, deviceId }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Gagal menghapus link.");
+        return;
+      }
+
+      // Hapus dari array lokal dan re-render
+      links.splice(itemIndex, 1);
+      render();
+    } catch (err) {
+      console.error(err);
+      alert("Terjadi error saat menghapus link.");
     }
   }
 });
