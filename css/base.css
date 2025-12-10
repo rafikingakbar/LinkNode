@@ -388,3 +388,74 @@ body {
   gap: 8px;
   color: var(--text-muted);
 }
+
+/* ================== MOBILE LAYOUT (≤ 640px) ================== */
+@media (max-width: 640px) {
+  /* Biar konten keliatan kaya “kartu” HP, gak terlalu melebar */
+  .page {
+    max-width: 430px;
+    padding: 16px 12px 32px;
+  }
+
+  /* Hero lebih compact */
+  .header {
+    margin-bottom: 24px;
+    gap: 16px;
+  }
+
+  .header-left {
+    gap: 10px;
+  }
+
+  .logo-box {
+    width: 64px;
+    height: 64px;
+    border-radius: 22px;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+  }
+
+  /* Tombol EN + theme pindah ke atas dan dirapikan */
+  .header-right {
+    position: static;          /* bukan absolute lagi */
+    order: -1;                 /* nongol di paling atas header */
+    align-self: center;
+    display: flex;
+    justify-content: center;   /* tombol sejajar di tengah */
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  /* Stat card jadi satu kolom (stack) */
+  .stats {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .card {
+    border-radius: 18px;
+    padding: 14px 16px;
+  }
+
+  /* Form & list sedikit dirapikan */
+  .shorten-section {
+    margin-bottom: 24px;
+  }
+
+  .list-title {
+    font-size: 20px;
+    margin: 0 0 10px;
+  }
+
+  .link-card,
+  .empty-state {
+    border-radius: 18px;
+  }
+}
