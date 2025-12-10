@@ -8,26 +8,14 @@ const totalClicksEl = document.getElementById("totalClicks");
 const linksContainer = document.getElementById("linksContainer");
 const emptyState = document.getElementById("emptyState");
 
-window.addEventListener("DOMContentLoaded", () => {
-  const stored = localStorage.getItem("shortenedLinks");
-  if (stored) {
-    links = JSON.parse(stored);
+async function loadLinks() {
+  try {
+    const res = await fetch("/api/shorten");
+    links = await res.json();
+    render();
+  } catch (err) {
+    console.error("Gagal load data:", err);
   }
-  render();
-});
-
-function generateShortCode() {
-  const chars =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let res = "";
-  for (let i = 0; i < 6; i++) {
-    res += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return res;
-}
-
-function saveToStorage() {
-  localStorage.setItem("shortenedLinks", JSON.stringify(links));
 }
 
 function updateStats() {
@@ -52,24 +40,25 @@ function render() {
   links.forEach((item) => {
     const card = document.createElement("div");
     card.className = "link-card";
-    card.dataset.id = item.id;
+    card.dataset.id = item.shortCode;
 
-    // pilih teks klik satuan/jamak
     const clicks = item.clicks || 0;
-    const clickWord =
-      clicks === 1 ? t("clickOne") : t("clickMany");
+    const clickWord = clicks === 1 ? t("clickOne") : t("clickMany");
 
     card.innerHTML = `
       <div class="link-row-top">
         <div class="link-meta">
           <p class="link-label">${t("shortLabel")}</p>
-          <a href="${item.originalUrl}" target="_blank" class="link-short" data-role="short-link">
+          <a 
+            href="${item.shortUrl}" 
+            target="_blank" 
+            class="link-short" 
+            data-role="short-link">
             ${item.shortUrl}
           </a>
         </div>
         <div class="link-actions">
           <button class="btn-text" data-role="copy">${t("copy")}</button>
-          <button class="btn-text delete" data-role="delete">${t("delete")}</button>
         </div>
       </div>
 
@@ -80,7 +69,7 @@ function render() {
         </div>
         <div class="link-info">
           <span>${clicks} ${clickWord}</span>
-          <span>• ${item.createdAt}</span>
+          <span>• ${new Date(item.createdAt).toLocaleString()}</span>
         </div>
       </div>
     `;
@@ -89,7 +78,7 @@ function render() {
   });
 }
 
-form.addEventListener("submit", function (e) {
+form.addEventListener("submit", async function (e) {
   e.preventDefault();
   errorText.textContent = "";
 
@@ -101,65 +90,50 @@ form.addEventListener("submit", function (e) {
 
   try {
     new URL(value);
-  } catch (err) {
+  } catch {
     errorText.textContent = "Format URL tidak valid.";
     return;
   }
 
-  const shortCode = generateShortCode();
-  const now = new Date();
+  try {
+    const res = await fetch("/api/shorten", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ originalUrl: value }),
+    });
 
-  const newItem = {
-    id: Date.now().toString(),
-    originalUrl: value,
-    shortCode: shortCode,
-    shortUrl: "https://short.link/" + shortCode,
-    createdAt: now.toLocaleString(),
-    clicks: 0,
-  };
+    const data = await res.json();
 
-  links.unshift(newItem);
-  saveToStorage();
-  render();
-  urlInput.value = "";
+    if (!res.ok) {
+      errorText.textContent = data.error || "Gagal mempersingkat URL.";
+      return;
+    }
+
+    links.unshift(data);
+    render();
+    urlInput.value = "";
+  } catch (err) {
+    console.error(err);
+    errorText.textContent = "Server error.";
+  }
 });
 
-linksContainer.addEventListener("click", function (e) {
+linksContainer.addEventListener("click", async function (e) {
   const target = e.target;
   const card = target.closest(".link-card");
   if (!card) return;
-  const id = card.dataset.id;
-  const itemIndex = links.findIndex((x) => x.id === id);
-  if (itemIndex === -1) return;
 
+  const shortCode = card.dataset.id;
   const role = target.getAttribute("data-role");
 
+  const item = links.find((x) => x.shortCode === shortCode);
+  if (!item) return;
+
   if (role === "copy") {
-    const textToCopy = links[itemIndex].shortUrl;
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(textToCopy).then(
-        () => {
-          alert("Short URL disalin: " + textToCopy);
-        },
-        () => {
-          alert("Gagal menyalin ke clipboard.");
-        }
-      );
-    } else {
-      prompt("Copy URL ini:", textToCopy);
-    }
-  }
-
-  if (role === "delete") {
-    const ok = confirm("Hapus link ini?");
-    if (!ok) return;
-    links.splice(itemIndex, 1);
-    saveToStorage();
-    render();
-  }
-
-  if (role === "short-link") {
-    links[itemIndex].clicks = (links[itemIndex].clicks || 0) + 1;
-    saveToStorage();
+    const textToCopy = item.shortUrl;
+    await navigator.clipboard.writeText(textToCopy);
+    alert("Short URL disalin: " + textToCopy);
   }
 });
+
+window.addEventListener("DOMContentLoaded", loadLinks);
