@@ -1,0 +1,97 @@
+/* ============ DARK THEME (DEFAULT) ============ */
+/* Dipakai kalau <body> TIDAK punya class="light" */
+:root {
+  --bg-main: #020617;
+  --bg-card: #020617;
+  --bg-input: #020617;
+  --border-soft: #1f2937;
+  --text-main: #e5e7eb;
+  --text-muted: #9ca3af;
+  --accent-green: #22c55e;
+  --accent-blue: #0ea5e9;
+
+  --bg-gradient: radial-gradient(circle at top, #0f172a, #020617 55%);
+}
+
+/* background & warna dasar ikut variabel di atas */
+body {
+  background: var(--bg-gradient);
+  color: var(--text-main);
+}
+
+/* ============ LIGHT THEME ============ */
+/* Dipakai kalau <body> PUNYA class="light" */
+body.light {
+  --bg-main: #f6fffb;
+  --bg-card: #ffffff;
+  --bg-input: #ffffff;
+  --border-soft: #e5f0ff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --accent-green: #0fb981;
+  --accent-blue: #0ea5e9;
+
+  /* background seperti SS pertama: hijau muda lembut */
+  --bg-gradient: radial-gradient(
+    circle at top,
+    #e7fff5 0%,
+    #f3fffb 40%,
+    #f4fbff 100%
+  );
+
+  /* langsung pakai gradient versi light */
+  background: var(--bg-gradient);
+}
+
+/* ============ OVERRIDE KHUSUS SAAT LIGHT MODE ============ */
+
+/* card umum (stat card, empty state, shortened link) jadi putih + shadow lembut */
+body.light .card,
+body.light .link-card,
+body.light .empty-state {
+  background: #ffffff;
+  border-color: #e5f0ff;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+}
+
+/* stat card hijau (Total Links) mirip SS: hijau sangat muda */
+body.light .card-green {
+  background: linear-gradient(135deg, #e8fff4, #f5fffb);
+}
+
+/* stat card biru (Total Clicks) */
+body.light .card-blue {
+  background: linear-gradient(135deg, #e7f1ff, #f5f9ff);
+}
+
+/* input di tengah kelihatan “ngambang” */
+body.light #urlInput {
+  background: #ffffff;
+  border-color: #e5f0ff;
+}
+
+/* tombol Shorten hijau dengan shadow lembut */
+body.light .btn-primary {
+  background: linear-gradient(135deg, #16a34a, #0ea5e9);
+  box-shadow: 0 14px 30px rgba(34, 197, 94, 0.4);
+  color: #ffffff;
+}
+
+/* teks judul/subtitle lebih gelap di light mode */
+body.light .title,
+body.light .list-title {
+  color: #036666;
+}
+
+body.light .subtitle {
+  color: var(--text-muted);
+}
+
+/* tombol bahasa & toggle tema di kanan atas jadi putih dengan shadow dikit */
+body.light .pill,
+body.light .circle-btn {
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #e5f0ff;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
