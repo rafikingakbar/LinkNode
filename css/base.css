@@ -4,11 +4,18 @@
   box-sizing: border-box;
 }
 
+/* ================= GLOBAL ================= */
+
 body {
   margin: 0;
   min-height: 100vh;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
+
+  /* Animasi halus saat theme (dark/light) berubah */
+  transition:
+    background 0.45s ease,
+    color 0.45s ease;
 }
 
 /* Wrapper utama */
@@ -18,7 +25,24 @@ body {
   padding: 24px 16px 40px;
 }
 
-/* ================= HEADER ================= */
+/* Animasi halus untuk elemen yang ikut theme */
+.card,
+.link-card,
+.empty-state,
+#urlInput,
+.btn-primary,
+.pill,
+.circle-btn,
+.logo-box {
+  transition:
+    background 0.45s ease,
+    color 0.45s ease,
+    border-color 0.45s ease,
+    box-shadow 0.45s ease,
+    transform 0.25s ease;
+}
+
+/* ================= HEADER / HERO ================= */
 
 /* HEADER sekarang jadi “hero” di tengah */
 .header {
@@ -39,7 +63,7 @@ body {
   gap: 16px;
 }
 
-
+/* Logo kotak hijau dengan shadow */
 .logo-box {
   width: 72px;
   height: 72px;
@@ -49,6 +73,12 @@ body {
   align-items: center;
   justify-content: center;
   box-shadow: 0 18px 40px rgba(16, 185, 129, 0.35);
+}
+
+/* Efek hover logo */
+.logo-box:hover {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 22px 50px rgba(16, 185, 129, 0.5);
 }
 
 .logo-icon {
@@ -72,7 +102,7 @@ body {
   max-width: 680px;                 /* biar gak terlalu panjang */
 }
 
-
+/* Tombol EN + theme di kanan atas */
 .header-right {
   position: absolute;
   top: 20px;
@@ -82,7 +112,7 @@ body {
   gap: 10px;
 }
 
-
+/* Tombol bahasa & toggle theme */
 .pill,
 .circle-btn {
   border-radius: 999px;
@@ -91,6 +121,7 @@ body {
   color: var(--text-main);
   cursor: pointer;
   font-size: 13px;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.28);
 }
 
 .pill {
@@ -100,6 +131,19 @@ body {
 .circle-btn {
   width: 40px;
   height: 40px;
+}
+
+/* Hover & active untuk pill & circle-btn */
+.pill:hover,
+.circle-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.35);
+}
+
+.pill:active,
+.circle-btn:active {
+  transform: translateY(0) scale(0.96);
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.3);
 }
 
 /* ================= STATISTICS ================= */
@@ -116,6 +160,19 @@ body {
   padding: 18px 20px;
   background: var(--bg-card);
   border: 1px solid var(--border-soft);
+}
+
+/* Box statistik (Total Links / Total Clicks) – efek hover */
+.stats .card {
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+}
+
+.stats .card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16);
 }
 
 .card-green {
@@ -182,6 +239,7 @@ body {
   border-color: var(--accent-green);
 }
 
+/* Tombol Shorten URL */
 .btn-primary {
   border: none;
   border-radius: 18px;
@@ -192,6 +250,17 @@ body {
   font-size: 14px;
   cursor: pointer;
   white-space: nowrap;
+  box-shadow: 0 10px 24px rgba(16, 185, 129, 0.5);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 36px rgba(16, 185, 129, 0.55);
+}
+
+.btn-primary:active {
+  transform: translateY(0) scale(0.97);
+  box-shadow: 0 10px 20px rgba(16, 185, 129, 0.45);
 }
 
 .error-text {
@@ -235,6 +304,16 @@ body {
   padding: 18px 20px;
   background: var(--bg-card);
   border: 1px solid var(--border-soft);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+/* Hover card di list */
+.link-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.18);
 }
 
 .link-row-top {
