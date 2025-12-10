@@ -1,5 +1,12 @@
 let links = [];
 
+// ==== DEVICE ID (per browser) ====
+let deviceId = localStorage.getItem("deviceId");
+if (!deviceId) {
+  deviceId = "dev_" + Math.random().toString(36).slice(2);
+  localStorage.setItem("deviceId", deviceId);
+}
+
 const form = document.getElementById("shortenForm");
 const urlInput = document.getElementById("urlInput");
 const errorText = document.getElementById("errorText");
@@ -8,9 +15,22 @@ const totalClicksEl = document.getElementById("totalClicks");
 const linksContainer = document.getElementById("linksContainer");
 const emptyState = document.getElementById("emptyState");
 
+// ==== LOAD DATA DARI FIRESTORE (HANYA PUNYA DEVICE INI) ====
 async function loadLinks() {
-  links = [];
-  render();
+  try {
+    const res = await fetch(`/api/list?deviceId=${encodeURIComponent(deviceId)}`);
+    if (!res.ok) {
+      console.error("Gagal load data:", await res.text());
+      links = [];
+    } else {
+      links = await res.json();
+    }
+    render();
+  } catch (err) {
+    console.error("Gagal load data:", err);
+    links = [];
+    render();
+  }
 }
 
 function updateStats() {
@@ -37,10 +57,13 @@ function render() {
     card.className = "link-card";
     card.dataset.id = item.shortCode;
 
+    const clicks = item.clicks || 0;
+    const clickWord = clicks === 1 ? t("clickOne") : t("clickMany");
+
     card.innerHTML = `
       <div class="link-row-top">
         <div class="link-meta">
-          <p class="link-label">Short URL</p>
+          <p class="link-label">${t("shortLabel")}</p>
           <a 
             href="${item.shortUrl}" 
             target="_blank" 
@@ -50,16 +73,18 @@ function render() {
           </a>
         </div>
         <div class="link-actions">
-          <button class="btn-text" data-role="copy">Copy</button>
+          <button class="btn-text" data-role="copy">${t("copy")}</button>
         </div>
       </div>
+
       <div class="link-row-bottom">
         <div>
-          <p class="link-label">Original</p>
+          <p class="link-label">${t("originalLabel")}</p>
           <p class="link-original">${item.originalUrl}</p>
         </div>
         <div class="link-info">
-          <span>${item.clicks || 0} clicks</span>
+          <span>${clicks} ${clickWord}</span>
+          <span>• ${new Date(item.createdAt).toLocaleString()}</span>
         </div>
       </div>
     `;
@@ -73,19 +98,29 @@ form.addEventListener("submit", async function (e) {
   errorText.textContent = "";
 
   const value = urlInput.value.trim();
-  if (!value) return;
+  if (!value) {
+    errorText.textContent = "URL tidak boleh kosong.";
+    return;
+  }
+
+  try {
+    new URL(value);
+  } catch {
+    errorText.textContent = "Format URL tidak valid.";
+    return;
+  }
 
   try {
     const res = await fetch("/api/shorten", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ originalUrl: value }),
+      body: JSON.stringify({ originalUrl: value, deviceId }),
     });
 
     const data = await res.json();
 
     if (!res.ok) {
-      errorText.textContent = data.error || "Server error";
+      errorText.textContent = data.error || "Gagal mempersingkat URL.";
       return;
     }
 
@@ -93,6 +128,7 @@ form.addEventListener("submit", async function (e) {
     render();
     urlInput.value = "";
   } catch (err) {
+    console.error(err);
     errorText.textContent = "Server error.";
   }
 });
@@ -104,11 +140,18 @@ linksContainer.addEventListener("click", async function (e) {
 
   const shortCode = card.dataset.id;
   const role = target.getAttribute("data-role");
+
   const item = links.find((x) => x.shortCode === shortCode);
+  if (!item) return;
 
   if (role === "copy") {
-    await navigator.clipboard.writeText(item.shortUrl);
-    alert("Disalin: " + item.shortUrl);
+    const textToCopy = item.shortUrl;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(textToCopy);
+      alert("Short URL disalin: " + textToCopy);
+    } else {
+      prompt("Copy URL ini:", textToCopy);
+    }
   }
 });
 
