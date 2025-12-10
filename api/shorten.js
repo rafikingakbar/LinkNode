@@ -39,7 +39,7 @@ module.exports = async (req, res) => {
     await db.collection("urls").doc(shortCode).set(data);
 
     return res.status(200).json({
-      shortUrl: `${req.headers.origin}/${shortCode}`,
+      shortUrl: `${req.headers.origin}/api/s/${shortCode}`,
       ...data,
     });
   } catch (err) {
