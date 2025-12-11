@@ -1,7 +1,6 @@
 // === i18n config ===
 var translations = {
   en: {
-    title: "URL Shortener",
     subtitle: "Shorten your long links into easy-to-share and memorable URLs",
     totalLinks: "Total Links",
     totalClicks: "Total Clicks",
@@ -19,7 +18,6 @@ var translations = {
     clickMany: "clicks",
   },
   id: {
-    title: "Pemendek URL",
     subtitle: "Pendekkan link panjang menjadi mudah dibagikan",
     totalLinks: "Total Link",
     totalClicks: "Total Klik",
