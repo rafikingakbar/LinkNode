@@ -157,6 +157,39 @@ linksContainer.addEventListener("click", async function (e) {
     }
   }
 
+  if (role === "edit") {
+    const newCode = prompt("Masukkan back-half baru (huruf/angka/-):", item.shortCode);
+    if (!newCode) return;
+    
+    try {
+      const res = await fetch("/api/edit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          oldCode: item.shortCode,
+          newCode: newCode.trim(),
+          deviceId,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Gagal edit kode.");
+        return;
+      }
+
+      item.shortCode = data.newCode;
+      item.shortUrl = data.shortUrl;
+
+      render();
+    } catch (err) {
+      console.error(err);
+      alert("Server error saat edit.");
+    }
+  }
+
+
   if (role === "delete") {
     const ok = confirm("Hapus link ini?");
     if (!ok) return;
