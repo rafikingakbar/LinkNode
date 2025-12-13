@@ -74,7 +74,6 @@ function render() {
         </div>
         <div class="link-actions">
           <button class="btn-text" data-role="copy">${t("copy")}</button>
-          <button class="btn-text" data-role="edit">Edit</button>
           <button class="btn-text delete" data-role="delete">${t("delete")}</button>
         </div>
       </div>
