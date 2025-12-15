@@ -546,4 +546,36 @@ body {
   border-radius: 14px;
 }
 
- <div id="topbar" class="topbar" aria-hidden="true"></div>
+/* ================= TOP PROGRESS BAR (Minimal Modern) ================= */
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0%;
+  z-index: 1000;
+
+  background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
+  box-shadow: 0 10px 26px rgba(34, 197, 94, 0.25);
+
+  transition: width 0.18s ease, opacity 0.18s ease;
+  opacity: 0;
+}
+
+.topbar.active {
+  opacity: 1;
+  width: 70%;
+  animation: topbarRun 1.15s ease infinite;
+}
+
+@keyframes topbarRun {
+  0%   { width: 12%; }
+  45%  { width: 72%; }
+  100% { width: 92%; }
+}
+
+.topbar.done {
+  opacity: 1;
+  width: 100%;
+  animation: none;
+}
