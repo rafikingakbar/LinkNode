@@ -15,6 +15,30 @@ const totalClicksEl = document.getElementById("totalClicks");
 const linksContainer = document.getElementById("linksContainer");
 const emptyState = document.getElementById("emptyState");
 
+// ==== TOPBAR LOADING ====
+const topbar = document.getElementById("topbar");
+let topbarCount = 0;
+
+function startLoading() {
+  topbarCount++;
+  if (topbar) topbar.classList.add("active");
+}
+
+function stopLoading() {
+  topbarCount = Math.max(0, topbarCount - 1);
+  if (!topbar) return;
+
+  if (topbarCount > 0) return;
+
+  topbar.classList.remove("active");
+  topbar.classList.add("done");
+
+  setTimeout(() => {
+    topbar.classList.remove("done");
+    topbar.style.width = "0%";
+  }, 220);
+}
+
 // ==== MODAL EDIT (inject sekali) ====
 const modalHtml = `
   <div id="editModal" class="modal hidden">
@@ -32,7 +56,7 @@ const modalHtml = `
 
       <div class="modal-actions">
         <button class="btn-text" data-role="cancel-edit">${t("cancel")}</button>
-        <button class="btn-primary modal-save" id="saveEditBtn" data-role="save-edit">${t("save")}</button>
+        <button class="btn-primary modal-save" id="saveEditBtn">${t("save")}</button>
       </div>
     </div>
   </div>
@@ -51,11 +75,10 @@ function openEditModal(item) {
   editingOldCode = item.shortCode;
   editError.textContent = "";
 
-  // prefix: https://domain/
   const origin = window.location.origin;
   editPrefix.textContent = origin + "/";
 
-  editAliasInput.value = item.shortCode; // default isi code lama
+  editAliasInput.value = item.shortCode;
   editModal.classList.remove("hidden");
   editAliasInput.focus();
   editAliasInput.select();
@@ -74,6 +97,7 @@ editModal.addEventListener("click", (e) => {
   }
 });
 
+// ==== SAVE EDIT HANDLER (dengan topbar + safe parse) ====
 saveEditBtn.addEventListener("click", async () => {
   editError.textContent = "";
 
@@ -85,7 +109,6 @@ saveEditBtn.addEventListener("click", async () => {
     return;
   }
 
-  // validasi client (biar cepat)
   if (!/^[A-Za-z0-9_-]{3,24}$/.test(newCode)) {
     editError.textContent = t("aliasInvalid");
     return;
@@ -96,24 +119,29 @@ saveEditBtn.addEventListener("click", async () => {
   saveEditBtn.textContent = t("saving");
 
   try {
+    startLoading();
+
     const res = await fetch("/api/edit", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ oldCode: editingOldCode, newCode, deviceId }),
     });
 
-    const data = await res.json();
+    const text = await res.text();
+    let data = {};
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { error: text };
+    }
 
     if (!res.ok) {
       editError.textContent = data.error || t("editFailed");
       return;
     }
 
-    // update array lokal: ganti item lama dengan item baru
     const idx = links.findIndex((x) => x.shortCode === editingOldCode);
-    if (idx !== -1) {
-      links[idx] = data;
-    }
+    if (idx !== -1) links[idx] = data;
 
     closeEditModal();
     render();
@@ -121,6 +149,7 @@ saveEditBtn.addEventListener("click", async () => {
     console.error(err);
     editError.textContent = t("serverError");
   } finally {
+    stopLoading();
     saveEditBtn.disabled = false;
     saveEditBtn.textContent = oldText;
   }
@@ -175,11 +204,7 @@ function render() {
       <div class="link-row-top">
         <div class="link-meta">
           <p class="link-label">${t("shortLabel")}</p>
-          <a 
-            href="${item.shortUrl}" 
-            target="_blank" 
-            class="link-short" 
-            data-role="short-link">
+          <a href="${item.shortUrl}" target="_blank" class="link-short" data-role="short-link">
             ${item.shortUrl}
           </a>
         </div>
@@ -206,6 +231,7 @@ function render() {
   });
 }
 
+// ==== SUBMIT SHORTEN (dengan topbar) ====
 form.addEventListener("submit", async function (e) {
   e.preventDefault();
   errorText.textContent = "";
@@ -224,6 +250,8 @@ form.addEventListener("submit", async function (e) {
   }
 
   try {
+    startLoading();
+
     const res = await fetch("/api/shorten", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -243,9 +271,12 @@ form.addEventListener("submit", async function (e) {
   } catch (err) {
     console.error(err);
     errorText.textContent = "Server error.";
+  } finally {
+    stopLoading();
   }
 });
 
+// ==== CARD ACTIONS (copy/edit/delete) ====
 linksContainer.addEventListener("click", async function (e) {
   const target = e.target;
   const card = target.closest(".link-card");
@@ -266,17 +297,21 @@ linksContainer.addEventListener("click", async function (e) {
     } else {
       prompt("Copy URL ini:", textToCopy);
     }
+    return;
   }
 
   if (role === "edit") {
-  openEditModal(item);
-}
+    openEditModal(item);
+    return;
+  }
 
   if (role === "delete") {
     const ok = confirm("Hapus link ini?");
     if (!ok) return;
 
     try {
+      startLoading();
+
       const res = await fetch("/api/delete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -290,12 +325,13 @@ linksContainer.addEventListener("click", async function (e) {
         return;
       }
 
-      // Hapus dari array lokal dan re-render
       links.splice(itemIndex, 1);
       render();
     } catch (err) {
       console.error(err);
       alert("Terjadi error saat menghapus link.");
+    } finally {
+      stopLoading();
     }
   }
 });
