@@ -26,7 +26,7 @@ module.exports = async (req, res) => {
 
     const data = doc.data();
     if (data.deviceId !== deviceId) {
-      // Biar device lain nggak bisa hapus punya kamu
+      // Biar device lain nggak bisa hapus punya tiap individu
       return res.status(403).json({ error: "Tidak boleh menghapus data milik device lain" });
     }
 
