@@ -205,8 +205,9 @@ function render() {
         <div class="link-meta">
           <p class="link-label">${t("shortLabel")}</p>
           <a href="${item.shortUrl}" target="_blank" class="link-short" data-role="short-link">
-            ${item.shortUrl}
+            ${item.shortUrl.replace(/^https?:\/\//, "")}
           </a>
+
         </div>
         <div class="link-actions">
           <button class="btn-text" data-role="copy">${t("copy")}</button>
