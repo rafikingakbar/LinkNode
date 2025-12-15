@@ -16,6 +16,20 @@ var translations = {
     delete: "Delete",
     clickOne: "click",
     clickMany: "clicks",
+
+    // EN
+    edit: "Edit",
+    editTitle: "Edit backhalf",
+    editSubtitle: "Choose a new alias. It must be globally unique.",
+    editPlaceholder: "new-alias",
+    save: "Save",
+    cancel: "Cancel",
+    saving: "Saving...",
+    aliasEmpty: "Alias cannot be empty.",
+    aliasInvalid: "Alias format invalid (3–24, A-Z a-z 0-9 _ -).",
+    editFailed: "Failed to update alias.",
+    serverError: "Server error.",
+
   },
   id: {
     subtitle: "Pendekkan link panjang menjadi mudah dibagikan",
@@ -32,6 +46,20 @@ var translations = {
     delete: "Hapus",
     clickOne: "klik",
     clickMany: "klik",
+
+    // ID
+    edit: "Edit",
+    editTitle: "Edit backhalf",
+    editSubtitle: "Pilih alias baru. Alias harus unik secara global.",
+    editPlaceholder: "alias-baru",
+    save: "Simpan",
+    cancel: "Batal",
+    saving: "Menyimpan...",
+    aliasEmpty: "Alias tidak boleh kosong.",
+    aliasInvalid: "Format alias tidak valid (3–24, A-Z a-z 0-9 _ -).",
+    editFailed: "Gagal mengubah alias.",
+    serverError: "Server error.",
+
   },
 };
 

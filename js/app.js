@@ -15,6 +15,117 @@ const totalClicksEl = document.getElementById("totalClicks");
 const linksContainer = document.getElementById("linksContainer");
 const emptyState = document.getElementById("emptyState");
 
+// ==== MODAL EDIT (inject sekali) ====
+const modalHtml = `
+  <div id="editModal" class="modal hidden">
+    <div class="modal-overlay" data-role="close-modal"></div>
+    <div class="modal-card">
+      <h3 class="modal-title" id="editTitle">${t("editTitle")}</h3>
+      <p class="modal-subtitle" id="editSubtitle">${t("editSubtitle")}</p>
+
+      <div class="modal-row">
+        <span class="modal-prefix" id="editPrefix"></span>
+        <input id="editAliasInput" class="modal-input" placeholder="${t("editPlaceholder")}" />
+      </div>
+
+      <p class="modal-error" id="editError"></p>
+
+      <div class="modal-actions">
+        <button class="btn-text" data-role="cancel-edit">${t("cancel")}</button>
+        <button class="btn-primary modal-save" id="saveEditBtn" data-role="save-edit">${t("save")}</button>
+      </div>
+    </div>
+  </div>
+`;
+document.body.insertAdjacentHTML("beforeend", modalHtml);
+
+const editModal = document.getElementById("editModal");
+const editAliasInput = document.getElementById("editAliasInput");
+const editError = document.getElementById("editError");
+const editPrefix = document.getElementById("editPrefix");
+const saveEditBtn = document.getElementById("saveEditBtn");
+
+let editingOldCode = null;
+
+function openEditModal(item) {
+  editingOldCode = item.shortCode;
+  editError.textContent = "";
+
+  // prefix: https://domain/
+  const origin = window.location.origin;
+  editPrefix.textContent = origin + "/";
+
+  editAliasInput.value = item.shortCode; // default isi code lama
+  editModal.classList.remove("hidden");
+  editAliasInput.focus();
+  editAliasInput.select();
+}
+
+function closeEditModal() {
+  editingOldCode = null;
+  editModal.classList.add("hidden");
+}
+
+// close overlay / cancel
+editModal.addEventListener("click", (e) => {
+  const role = e.target.getAttribute("data-role");
+  if (role === "close-modal" || role === "cancel-edit") {
+    closeEditModal();
+  }
+});
+
+saveEditBtn.addEventListener("click", async () => {
+  editError.textContent = "";
+
+  const newCode = (editAliasInput.value || "").trim();
+  if (!editingOldCode) return;
+
+  if (!newCode) {
+    editError.textContent = t("aliasEmpty");
+    return;
+  }
+
+  // validasi client (biar cepat)
+  if (!/^[A-Za-z0-9_-]{3,24}$/.test(newCode)) {
+    editError.textContent = t("aliasInvalid");
+    return;
+  }
+
+  saveEditBtn.disabled = true;
+  const oldText = saveEditBtn.textContent;
+  saveEditBtn.textContent = t("saving");
+
+  try {
+    const res = await fetch("/api/edit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ oldCode: editingOldCode, newCode, deviceId }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      editError.textContent = data.error || t("editFailed");
+      return;
+    }
+
+    // update array lokal: ganti item lama dengan item baru
+    const idx = links.findIndex((x) => x.shortCode === editingOldCode);
+    if (idx !== -1) {
+      links[idx] = data;
+    }
+
+    closeEditModal();
+    render();
+  } catch (err) {
+    console.error(err);
+    editError.textContent = t("serverError");
+  } finally {
+    saveEditBtn.disabled = false;
+    saveEditBtn.textContent = oldText;
+  }
+});
+
 // ==== LOAD DATA DARI FIRESTORE (HANYA PUNYA DEVICE INI) ====
 async function loadLinks() {
   try {
@@ -74,6 +185,7 @@ function render() {
         </div>
         <div class="link-actions">
           <button class="btn-text" data-role="copy">${t("copy")}</button>
+          <button class="btn-text" data-role="edit">${t("edit")}</button>
           <button class="btn-text delete" data-role="delete">${t("delete")}</button>
         </div>
       </div>
@@ -155,6 +267,10 @@ linksContainer.addEventListener("click", async function (e) {
       prompt("Copy URL ini:", textToCopy);
     }
   }
+
+  if (role === "edit") {
+  openEditModal(item);
+}
 
   if (role === "delete") {
     const ok = confirm("Hapus link ini?");
