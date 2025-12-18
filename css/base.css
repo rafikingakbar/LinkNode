@@ -523,6 +523,29 @@ body {
   outline: none;
 }
 
+/* ===== Fix modal input overflow on mobile ===== */
+.modal-row{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.modal-prefix{
+  flex: 0 0 auto;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modal-input{
+  flex: 1 1 220px;          /* bisa membesar tapi juga bisa mengecil */
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .modal-input:focus {
   border-color: var(--accent-green);
 }
