@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🔗 LinkNode
+#  LinkNode
 
 **A lightweight URL shortener — shorten, manage, and track your links.**
 
